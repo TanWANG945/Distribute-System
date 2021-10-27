@@ -28,6 +28,9 @@ import pb.protocols.session.SessionProtocol;
  * @author aaron
  *
  */
+
+// 实现编辑: Tanner
+// 部分内容近期(2021)修改为中文,并消除骚操作
 public class ClientManager extends Manager implements ISessionProtocolHandler,
 	IKeepAliveProtocolHandler, IEventProtocolHandler
 {
@@ -107,13 +110,18 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	
 	@Override
 	public void run() {
+//		线程任务:
+
 		int retries=10;
+//		卧槽还可以这样写！
 		while(retries-- > 0) {
+
 			if(attemptToConnect(host,port)) {
 				// the connection ended in error, so let's just
 				// try to get it back up, transparently to the
 				// higher layer
 				try {
+//					gap seconds， 5s
 					Thread.sleep(5000); // short pause before retrying
 				} catch (InterruptedException e) {
 					continue;
@@ -123,7 +131,9 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 				return;
 			}
 		}
-		log.severe("no more retries, giving up");
+
+//		log.severe("no more retries, giving up");
+		log.severe("十次重连失败");
 		
 	}
 	/**
@@ -132,10 +142,15 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 * @param port
 	 * @return true if we should retry to connect again or false otherwise
 	 */
+//	判定是否需要重连(判定服务器问题还是网络问题)
+
 	private boolean attemptToConnect(final String host,final int port) {
 		shouldWeRetry=false; // may be set to true by another thread
 						     // if errors occur on the connection
-		log.info("attempting to connect to "+host+":"+port);
+
+//		log.info("attempting to connect to "+host+":"+port);
+
+		log.info("尝试连接: "+host+":"+port);
 		try {
 			socket=new Socket(InetAddress.getByName(host),port);
 			Endpoint endpoint = new Endpoint(socket,this);
@@ -150,10 +165,12 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 			}
 		} catch (UnknownHostException e) {
 			return false; // we wont retry
+			// we should retry
 		} catch (IOException e1) {
 			shouldWeRetry=true;
 		} finally {
 			if(socket!=null)
+//				关掉socket,重建一次
 				try {
 					socket.close();
 				} catch (IOException e) {
@@ -169,8 +186,11 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void endpointReady(Endpoint endpoint) {
-		log.info("connection with server established");
+//		log.info("connection with server established");
+		log.info("服务器连接已建立");
+
 		sessionProtocol = new SessionProtocol(endpoint,this);
+
 		try {
 			// we need to add it to the endpoint before starting it
 			endpoint.handleProtocol(sessionProtocol);
@@ -205,7 +225,8 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void endpointDisconnectedAbruptly(Endpoint endpoint) {
-		log.severe("connection with server terminated abruptly");
+//		log.severe("connection with server terminated abruptly");
+		log.severe("服务器连接突然中断");
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 		shouldWeRetry=true;
@@ -217,7 +238,8 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void endpointSentInvalidMessage(Endpoint endpoint) {
-		log.severe("server sent an invalid message");
+//		log.severe("server sent an invalid message");
+		log.severe("服务器发送无效信息");
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 	}
@@ -229,7 +251,8 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void endpointTimedOut(Endpoint endpoint,Protocol protocol) {
-		log.severe("server has timed out");
+//		log.severe("server has timed out");
+		log.severe("服务器超时");
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 		shouldWeRetry=true;
@@ -241,7 +264,8 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void protocolViolation(Endpoint endpoint,Protocol protocol) {
-		log.severe("protocol with server has been violated: "+protocol.getProtocolName());
+//		log.severe("protocol with server has been violated: "+protocol.getProtocolName());
+		log.severe("协议已经失效: "+protocol.getProtocolName());
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 	}
@@ -252,7 +276,9 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void sessionStarted(Endpoint endpoint) {
-		log.info("session has started with server");
+//		log.info("session has started with server");
+
+		log.info("服务器事务开启");
 		
 		EventProtocol eventProtocol = new EventProtocol(endpoint,this);
 		try {
@@ -271,7 +297,8 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	 */
 	@Override
 	public void sessionStopped(Endpoint endpoint) {
-		log.info("session has stopped with server");
+//		log.info("session has stopped with server");
+		log.info("服务器事务已停止");
 		localEmit(sessionStopped,endpoint);
 		endpoint.close(); // this will stop all the protocols as well
 	}

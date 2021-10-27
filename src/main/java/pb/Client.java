@@ -22,6 +22,7 @@ import pb.utils.Utils;
  *
  */
 public class Client  {
+
 	private static Logger log = Logger.getLogger(Client.class.getName());
 	private static int port=Utils.serverPort; // default port number for the server
 	private static String host=Utils.serverHost; // default host for the server

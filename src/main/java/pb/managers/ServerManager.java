@@ -157,19 +157,19 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 	 */
 	
 	public void shutdown() {
-		log.info("server shutdown called");
+		log.info("服务器关闭指令-等待客户端关闭");
 		// this will not force existing clients to finish their sessions
 		ioThread.shutDown();
 	}
 	
 	public void forceShutdown() { // Skywalker style :-)
-		log.warning("server force shutdown called");
+		log.warning("服务器强制关闭客户端");
 		forceShutdown=true; // this will send session stops to all the clients
 		ioThread.shutDown();
 	}
 	
 	public void vaderShutdown() { // Darkside style :-]
-		log.warning("server vader shutdown called");
+		log.warning("服务器立刻关闭");
 		vaderShutdown=true; // this will just close all of the endpoints abruptly
 		ioThread.shutDown();
 	}
@@ -186,13 +186,13 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 	
 	@Override
 	public void run() {
-		log.info("started");
+		log.info("启动");
 		// when the IO thread terminates, and all endpoints have terminated,
 		// then the server will terminate
 		try {
 			ioThread = new IOThread(port,this);
 		} catch (IOException e1) {
-			log.severe("could not start the io thread");
+			log.severe("不能开启IO线程");
 			return;
 		}
 		
@@ -255,6 +255,8 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 				}
 				currentEndpoints.forEach((endpoint)->{
 				    SessionProtocol sp = (SessionProtocol) endpoint.getProtocol("SessionProtocol");
+//				    sp.stopSession();
+//					忘了当时写这里准备干什么了。。。。
 				});
 			}
 		}
@@ -323,14 +325,14 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 			endpoint.handleProtocol(keepAliveProtocol);
 			keepAliveProtocol.startAsServer();
 		} catch (ProtocolAlreadyRunning e) {
-			// hmmm... already requested by the client
+			// emmm... already requested by the client
 		}
 		SessionProtocol sessionProtocol = new SessionProtocol(endpoint,this);
 		try {
 			endpoint.handleProtocol(sessionProtocol);
 			sessionProtocol.startAsServer();
 		} catch (ProtocolAlreadyRunning e) {
-			// hmmm... already started by the client
+			// emmm... already started by the client
 		}
 		
 		

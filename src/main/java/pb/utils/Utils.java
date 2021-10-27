@@ -12,27 +12,24 @@ import pb.protocols.ICallback;
  * @author aaron
  *
  */
+//这里使用固定端口号实现
+
 public class Utils {
+//	单例模式
 	private static Utils utils;
-	
-	/**
-	 * Default server port
-	 */
+//	默认服务器端口号
 	public static final int serverPort = 3100;
 	
-	/**
-	 * Default server host
-	 */
+//	默认服务器主机名
 	public static final String serverHost = "localhost";
 	
-	/**
-	 * Default index server port
-	 */
+//	主页服务器端口号
 	public static final int indexServerPort = 3101;
 	
 	/**
 	 * Chunk size in bytes to use when transferring a file
 	 */
+//	传输区块大小
 	public static final int chunkSize = 16*1024;
 	
 	/**

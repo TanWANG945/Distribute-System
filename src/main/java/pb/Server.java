@@ -27,10 +27,14 @@ public class Server {
 	
 
 	private static void help(Options options){
-		String header = "PB Server for Unimelb COMP90015\n\n";
-		String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
+//		String header = "PB Server for Unimelb COMP90015\n\n";
+		String header = "PB 服务器 Tanner个人分支\n\n";
+
+		String footer = "\n改了再改版";
+
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("pb.Server", header, options, footer, true);
+//		formatter.printHelp("pb.Server", header, options, footer, true);
+		formatter.printHelp("Server 服务器", header,options,footer);
 		System.exit(-1);
 	}
 	
@@ -42,7 +46,7 @@ public class Server {
         
     	// parse command line options
         Options options = new Options();
-        options.addOption("port",true,"server port, an integer");
+        options.addOption("port",true,"服务器端口号，整数");
         
        
         CommandLineParser parser = new DefaultParser();
@@ -57,14 +61,14 @@ public class Server {
         	try{
         		port = Integer.parseInt(cmd.getOptionValue("port"));
 			} catch (NumberFormatException e){
-				System.out.println("-port requires a port number, parsed: "+cmd.getOptionValue("port"));
+				System.out.println("-port 后跟端口号, parsed: "+cmd.getOptionValue("port"));
 				help(options);
 			}
         }
         
         
         // start up the server
-        log.info("PB Server starting up");
+        log.info("PB Server启动");
         
         // the server manager will start an io thread and this will prevent
         // the JVM from terminating
