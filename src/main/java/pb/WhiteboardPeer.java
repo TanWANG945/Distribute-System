@@ -13,37 +13,18 @@ import org.apache.commons.cli.ParseException;
 import pb.app.WhiteboardApp;
 import pb.utils.Utils;
 
-/**
- * Just a bootstrap class for the actual whiteboard app.
- * @author aaron
- *
- */
 public class WhiteboardPeer {
 	private static Logger log = Logger.getLogger(WhiteboardPeer.class.getName());
 
-	/**
-	 * port to use for this peer's server
-	 */
 	private static int peerPort=Utils.serverPort; // default port number for this peer's server
-	
-	
-	/**
-	 * port to use when contacting the index server
-	 */
+
 	private static int whiteboardServerPort=Utils.indexServerPort; // default port number for index server
 
-	/**
-	 * host to use when contacting the index server
-	 */
 	private static String host=Utils.serverHost; // default host for the index server
-	
-	/**
-	 * Print some help.
-	 * @param options
-	 */
+
 	private static void help(Options options){
-		String header = "Whiteboard Peer for Unimelb COMP90015\n\n";
-		String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
+		String header = "WhiteboardPeer\n\n";
+		String footer = "\nVersion 1.0";
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("pb.WhiteboardPeer", header, options, footer, true);
 		System.exit(-1);

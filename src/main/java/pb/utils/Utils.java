@@ -5,13 +5,6 @@ import java.util.TimerTask;
 
 import pb.protocols.ICallback;
 
-/**
- * A singleton class to provide various utility functions. It must always be
- * accessed statically as Utils.getInstance()...
- * 
- * @author aaron
- *
- */
 //这里使用固定端口号实现
 
 public class Utils {
@@ -46,18 +39,7 @@ public class Utils {
 		if(utils==null) utils=new Utils();
 		return utils;
 	}
-	
-	/**
-	 * Convenience method to set an anonymous method callback
-	 * after a timeout delay. Go JavaScript :-)
-	 * <br/>
-	 * Use this method like: 
-	 * <code>
-	 * Utils.getInstance().setTimeout(()->{doSomething();},10000);
-	 * </code>
-	 * @param callback the method to call
-	 * @param delay the delay in ms before calling the method
-	 */
+
 	public void setTimeout(ICallback callback,long delay) {
 		// nicely, this is thread safe
 		timer.schedule(new TimerTask() {
@@ -68,10 +50,7 @@ public class Utils {
 			
 		}, delay);
 	}
-	
-	/**
-	 * Call before the system exits.
-	 */
+
 	public void cleanUp() {
 		timer.cancel();
 		System.gc(); // need to do this to cleanup timer tasks and allow jvm to quit

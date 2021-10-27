@@ -8,13 +8,6 @@ import pb.protocols.IRequestReplyProtocol;
 import pb.protocols.Message;
 import pb.protocols.Protocol;
 
-/**
- * An event protocol for applications communicate using an asynchronous
- * event system. Each event can include a simple parameter that must
- * be a String. Complex data should be marshaled into a String.
- * @author aaron
- *
- */
 public class EventProtocol extends Protocol implements IRequestReplyProtocol {
 	private static Logger log = Logger.getLogger(EventProtocol.class.getName());
 	
@@ -23,13 +16,7 @@ public class EventProtocol extends Protocol implements IRequestReplyProtocol {
 	public int eventTimeout = 40000;
 	
 	public volatile boolean stopped=false;
-	
-	/**
-	 * Event protocol will listen to all events emitted on the endpoint and
-	 * transmit them over the endpoint.
-	 * @param endpoint
-	 * @param manager
-	 */
+
 	public EventProtocol(Endpoint endpoint, IEventProtocolHandler manager) {
 		super(endpoint, (Manager)manager);	
 		// Register an event to listen for all events ("*") emitted on this endpoint and
@@ -45,12 +32,7 @@ public class EventProtocol extends Protocol implements IRequestReplyProtocol {
 			}			
 		});
 	}
-	
-	/**
-	 * Send and event to the other side, The Doors style :-)
-	 * @param eventName
-	 * @param eventData
-	 */
+
 	public void sendEvent(String eventName, String eventData) {
 		if(stopped)return;
 		sendRequest(new EventRequest(eventName,eventData));
@@ -63,14 +45,10 @@ public class EventProtocol extends Protocol implements IRequestReplyProtocol {
 
 	@Override
 	public void startAsClient() {
-		
-		
 	}
 
 	@Override
 	public void startAsServer() {
-		
-		
 	}
 
 	@Override
@@ -98,8 +76,6 @@ public class EventProtocol extends Protocol implements IRequestReplyProtocol {
 
 	@Override
 	public void sendReply(Message msg)  {
-		
-		
 	}
 	
 	@Override

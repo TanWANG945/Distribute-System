@@ -15,20 +15,6 @@ import pb.managers.ServerManager;
 import pb.managers.endpoint.Endpoint;
 import pb.utils.Utils;
 
-/**
- * Admin Client main. Parse command line options and provide default values.
- * TODO: For project 2A, modify this client to take command line options
- * -shutdown, -forceShutdown and -vaderShutdown. The client should send the
- * appropriate event over the event protocol and then simply stop the session
- * and terminate. Make sure the client does not send the event until the
- * SESSION_STARTED event has been emitted, etc. And the client should attempt to
- * cleanly terminate, not just system exit.
- * 
- * @see {@link pb.managers.ClientManager}
- * @see {@link pb.utils.Utils}
- * @author aaron
- *
- */
 
 public class AdminClient  {
 	private static Logger log = Logger.getLogger(AdminClient.class.getName());
@@ -38,8 +24,8 @@ public class AdminClient  {
 	private static String host=Utils.serverHost; // default host for the server
 	
 	private static void help(Options options){
-		String header = "PB Admin Client for Unimelb COMP90015\n\n";
-		String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
+		String header = "PB Admin\n\n";
+		String footer = "\nVersion 1.0";
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("pb.Client", header, options, footer, true);
 		System.exit(-1);

@@ -17,130 +17,44 @@ import pb.protocols.keepalive.KeepAliveProtocol;
 import pb.protocols.session.ISessionProtocolHandler;
 import pb.protocols.session.SessionProtocol;
 
-
-/**
- * Manages all of the clients for the server and the server's state.
- * 
- * @see {@link pb.managers.Manager}
- * @see {@link pb.managers.IOThread}
- * @see {@link pb.managers.endpoint.Endpoint}
- * @see {@link pb.protocols.Protocol}
- * @see {@link pb.protocols.IRequestReplyProtocol}
- * @author aaron
- *
- */
 public class ServerManager extends Manager implements ISessionProtocolHandler,
 	IKeepAliveProtocolHandler, IEventProtocolHandler
 {
 	private static Logger log = Logger.getLogger(ServerManager.class.getName());
-	
-	/**
-	 * Events emitted by the ServerManager
-	 */
-	
-	/**
-	 * Emitted when a session on an endpoint is ready for use.
-	 * <ul>
-	 * <li>{@code args[0] instanceof Endpoint}</li>
-	 * </ul>
-	 */
+
 	public static final String sessionStarted="SESSION_STARTED";
-	
-	/**
-	 * Emitted when a session has stopped and can longer be used.
-	 * <ul>
-	 * <li>{@code args[0] instanceof Endpoint}</li>
-	 * </ul>
-	 */
+
 	public static final String sessionStopped="SESSION_STOPPED";
-	
-	/**
-	 * Emitted when a session has stopped in error and can no longer
-	 * be used.
-	 * <ul>
-	 * <li>{@code args[0] instanceof Endpoint}</li>
-	 * </ul>
-	 */
+
 	public static final String sessionError="SESSION_ERROR";
-	
-	/**
-	 * Emitted when a session should shutdown. Message is reason
-	 * for shutting down.
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
+
 	public static final String shutdownServer="SERVER_SHUTDOWN";
-	
-	/**
-	 * Emitted when a session should shutdown, and will request sessions
-	 * to stop immediately. Message is reason for shutting down.
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
+
 	public static final String forceShutdownServer="SERVER_FORCE_SHUTDOWN";
-	
-	/**
-	 * Emitted when a session should shutdown, and will directly close
-	 * connections. Message is reason for shutting down.
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
+
 	public static final String vaderShutdownServer="SERVER_VADER_SHUTDOWN";
-	
-	
-	/**
-	 * The io thread accepts connections and informs the server manager
-	 * of the connection's socket.
-	 */
+
 	private IOThread ioThread;
-	
-	/**
-	 * Keep a track of endpoints that
-	 * have not yet terminated, so that we can wait/ask/force for them to finish
-	 * before completely terminating. This object can be called by multiple
-	 * endpoint threads and this server manager thread; so synchronized is needed.
-	 */
+
 	private final Set<Endpoint> liveEndpoints;
 	
-	/**
-	 * The port for this server.
-	 */
+
 	private final int port;
-	
-	/**
-	 * Should we force shutdown, i.e force endpoints to close.
-	 */
+
 	private volatile boolean forceShutdown=false;
 	
-	/**
-	 * Should we force shutdown and not even wait for endpoints to close.
-	 */
+
 	private volatile boolean vaderShutdown=false;
-	
-	/**
-	 * Password if given
-	 */
+
 	private String password=null;
-	
-	/**
-	 * Initialise the ServerManager with a port number for the io thread to listen on.
-	 * @param port to use when creating the io thread
-	 */
+
 	public ServerManager(int port) {
 		this.port=port;
 		liveEndpoints=new HashSet<>();
 		setName("ServerManager"); // name the thread, urgh simple log can't print it :-(
 	}
 	
-	/**
-	 * Initialise the ServerManager with a port number for the io thread to listen on.
-	 * and a password.
-	 * @param port to use when creating the io thread
-	 * @param password to use by admin clients
-	 */
+
 	public ServerManager(int port,String password) {
 		this.port=port;
 		liveEndpoints=new HashSet<>();
@@ -148,14 +62,7 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		setName("ServerManager"); // name the thread, urgh simple log can't print it :-(
 	}
 	
-	/**
-	 * Usually a single shutdown method would suffice, but for servers
-	 * it is convenient to have different methods, depending on how the
-	 * administrator wants to shut the server down, like if they are in
-	 * a rush, or can wait for existing clients to finish up gracefully,
-	 * or if they can't wait at all, etc.
-	 */
-	
+
 	public void shutdown() {
 		log.info("服务器关闭指令-等待客户端关闭");
 		// this will not force existing clients to finish their sessions
@@ -173,11 +80,7 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		vaderShutdown=true; // this will just close all of the endpoints abruptly
 		ioThread.shutDown();
 	}
-	
-	/**
-	 * Convenience wrapper
-	 * @return the number of live endpoints
-	 */
+
 	public int numLiveEndpoints() {
 		synchronized(liveEndpoints) {
 			return liveEndpoints.size();
@@ -262,27 +165,12 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		}
 		log.info("terminated");
 	}
-	
-	/**
-	 * A new client has connected to the server. We need to keep
-	 * a set of all clients that have connected, so that we can
-	 * do global operations, like broadcast data to all clients.
-	 * @param clientSocket the socket connection for the client.
-	 */
+
 	public void acceptClient(Socket clientSocket) {
 		Endpoint endpoint = new Endpoint(clientSocket,this);
 		endpoint.start();
 	}
-	
-	/**
-	 * Called by a client endpoint to signal that it is now ready for
-	 * use, the server can send data and it may start receiving messages
-	 * from the client, etc. The server will now start the KeepAlive protocol
-	 * so as to detect clients that are dead. The server will wait for the
-	 * client to start the session protocol, or else terminate the connection
-	 * if it does not stay alive.
-	 * @param endpoint
-	 */
+
 	@Override
 	public void endpointReady(Endpoint endpoint) {
 		if(vaderShutdown) {
@@ -334,14 +222,7 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		} catch (ProtocolAlreadyRunning e) {
 			// emmm... already started by the client
 		}
-		
-		
 	}
-	
-	/**
-	 * The endpoint close() method has been called and completed.
-	 * @param endpoint
-	 */
 	@Override
 	public void endpointClosed(Endpoint endpoint) {
 		synchronized(liveEndpoints) {
@@ -349,11 +230,6 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		}
 	}
 
-	/**
-	 * The session has started for this client endpoint. Other protocols
-	 * may now be started, etc. We will start the event protocol now.
-	 * @param endpoint
-	 */
 	@Override
 	public void sessionStarted(Endpoint endpoint) {
 		log.info("session has started with client: "+endpoint.getOtherEndpointId());
@@ -380,13 +256,6 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		
 	}
 
-	/**
-	 * The session has been stopped (usually by the client). The session should
-	 * be last protocol to stop, other than the KeepAlive protocol. Server should now
-	 * clean up any data relating to the client and any remaining protocols
-	 * should be stopped, e.g. KeepAlive.
-	 * @param endpoint
-	 */
 	@Override
 	public void sessionStopped(Endpoint endpoint) {
 		log.info("session has stopped with client: "+endpoint.getOtherEndpointId());
@@ -396,15 +265,7 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		// we can now signal the client endpoint to close and forget this client
 		endpoint.close(); // will stop all remaining protocols
 	}
-	
-	/**
-	 * The endpoint has requested a protocol to start. If the protocol
-	 * is allowed then the manager should tell the endpoint to handle it
-	 * using {@link pb.managers.endpoint.Endpoint#handleProtocol(Protocol)}
-	 * before returning true.
-	 * @param protocol
-	 * @return true if the protocol was started, false if not (not allowed to run)
-	 */
+
 	@Override
 	public boolean protocolRequested(Endpoint endpoint, Protocol protocol) {
 		// the only protocols in this system are this kind...
@@ -427,37 +288,20 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 	 * as well.
 	 */
 
-	/**
-	 * The client has violated one of the protocols. Usual practice is to
-	 * terminate the client connection.
-	 * @param endpoint
-	 * @param protocol
-	 */
 	@Override
 	public void protocolViolation(Endpoint endpoint, Protocol protocol) {
 		log.severe("client "+endpoint.getOtherEndpointId()+" violated the protocol "+protocol.getProtocolName());
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 	}
-	
-	/**
-	 * The client connection died without warning. 
-	 * Server needs to clean up client data and possibly recover
-	 * from any faults that may occur due to this.
-	 * @param endpoint
-	 */
+
 	@Override
 	public void endpointDisconnectedAbruptly(Endpoint endpoint) {
 		log.severe("client disconnected abruptly "+endpoint.getOtherEndpointId());
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 	}
-	
-	/**
-	 * The client sent a message that is invalid. Usual practice is to 
-	 * terminate the client connection.
-	 * @param endpoint
-	 */
+
 	@Override
 	public void endpointSentInvalidMessage(Endpoint endpoint) {
 		log.severe("client sent an invalid message "+endpoint.getOtherEndpointId());
@@ -465,12 +309,6 @@ public class ServerManager extends Manager implements ISessionProtocolHandler,
 		endpoint.close();
 	}
 
-	/**
-	 * The client has timed out.
-	 * Usual practice is to terminate the client connection.
-	 * @param endpoint
-	 * @param protocol
-	 */
 	@Override
 	public void endpointTimedOut(Endpoint endpoint, Protocol protocol) {
 		log.severe("client "+endpoint.getOtherEndpointId()+" has timed out on protocol "+protocol.getProtocolName());

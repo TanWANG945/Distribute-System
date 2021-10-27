@@ -18,71 +18,20 @@ import pb.managers.ServerManager;
 import pb.managers.endpoint.Endpoint;
 import pb.utils.Utils;
 
-/**
- * Simple whiteboard server to provide whiteboard peer notifications.
- * @author aaron
- *
- */
 public class WhiteboardServer {
 	private static Logger log = Logger.getLogger(WhiteboardServer.class.getName());
 	
-	/**
-	 * Emitted by a client to tell the server that a board is being shared. Argument
-	 * must have the format "host:port:boardid".
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
+
 	public static final String shareBoard = "SHARE_BOARD";
 
-	/**
-	 * Emitted by a client to tell the server that a board is no longer being
-	 * shared. Argument must have the format "host:port:boardid".
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
 	public static final String unshareBoard = "UNSHARE_BOARD";
 
-	/**
-	 * The server emits this event:
-	 * <ul>
-	 * <li>to all connected clients to tell them that a board is being shared</li>
-	 * <li>to a newly connected client, it emits this event several times, for all
-	 * boards that are currently known to be being shared</li>
-	 * </ul>
-	 * Argument has format "host:port:boardid"
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
 	public static final String sharingBoard = "SHARING_BOARD";
 
-	/**
-	 * The server emits this event:
-	 * <ul>
-	 * <li>to all connected clients to tell them that a board is no longer
-	 * shared</li>
-	 * </ul>
-	 * Argument has format "host:port:boardid"
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
 	public static final String unsharingBoard = "UNSHARING_BOARD";
 
-	/**
-	 * Emitted by the server to a client to let it know that there was an error in a
-	 * received argument to any of the events above. Argument is the error message.
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}</li>
-	 * </ul>
-	 */
 	public static final String error = "ERROR";
-	
-	/**
-	 * Default port number.
-	 */
+
 	private static int port = Utils.indexServerPort;
     private static List<String> shareargs = new ArrayList<String>();
 
@@ -90,8 +39,8 @@ public class WhiteboardServer {
 	
 	
 	private static void help(Options options){
-		String header = "PB Whiteboard Server for Unimelb COMP90015\n\n";
-		String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
+		String header = "WhiteBoardServer\n\n";
+		String footer = "\nVersion1.0";
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("pb.IndexServer", header, options, footer, true);
 		System.exit(-1);
@@ -134,10 +83,7 @@ public class WhiteboardServer {
         } else {
         	serverManager = new ServerManager(port);
         }
-        
-        /**
-         * TODO: Put some server related code here.
-         */
+
         serverManager.on(ServerManager.sessionStarted,(eventArgs)->{
             Endpoint endpoint = (Endpoint)eventArgs[0];
              if (!shareargs.isEmpty()) {

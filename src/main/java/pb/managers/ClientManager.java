@@ -18,16 +18,6 @@ import pb.protocols.keepalive.KeepAliveProtocol;
 import pb.protocols.session.ISessionProtocolHandler;
 import pb.protocols.session.SessionProtocol;
 
-/**
- * Manages the connection to the server and the client's state.
- * 
- * @see {@link pb.managers.Manager}
- * @see {@link pb.managers.endpoint.Endpoint}
- * @see {@link pb.protocols.Protocol}
- * @see {@link pb.protocols.IRequestReplyProtocol}
- * @author aaron
- *
- */
 
 // 实现编辑: Tanner
 // 部分内容近期(2021)修改为中文,并消除骚操作
@@ -35,69 +25,23 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 	IKeepAliveProtocolHandler, IEventProtocolHandler
 {
 	private static Logger log = Logger.getLogger(ClientManager.class.getName());
-	
-	/**
-	 * Events emitted by the ClientManager
-	 */
-	
-	/**
-	 * Emitted when a session on an endpoint is ready for use.
-	 * <ul>
-	 * <li>{@code args[0] instanceof Endpoint}</li>
-	 * </ul>
-	 */
+
 	public static final String sessionStarted="SESSION_STARTED";
-	
-	/**
-	 * Emitted when a session has stopped and can longer be used.
-	 * <ul>
-	 * <li>{@code args[0] instanceof Endpoint}</li>
-	 * </ul>
-	 */
+
 	public static final String sessionStopped="SESSION_STOPPED";
-	
-	/**
-	 * Emitted when a session has stopped in error and can no longer
-	 * be used.
-	 * <ul>
-	 * <li>{@code args[0] instanceof Endpoint}</li>
-	 * </ul>
-	 */
+
 	public static final String sessionError="SESSION_ERROR";
-	
-	/**
-	 * The session protocol for this client, so we can stop the
-	 * session when we need to.
-	 */
+
 	private SessionProtocol sessionProtocol;
-	
-	/**
-	 * The socket for this client.
-	 */
+
 	private Socket socket;
-	
-	/**
-	 * The host to connect to.
-	 */
+
 	private String host;
-	
-	/**
-	 * The host's port to connect to.
-	 */
+
 	private int port;
-	
-	/**
-	 * When a connection fails, should we retry.
-	 */
+
 	private boolean shouldWeRetry=false;
-	
-	/**
-	 * Initialise the client manage with a host and port to connect to.
-	 * @param host
-	 * @param port
-	 * @throws UnknownHostException
-	 * @throws InterruptedException
-	 */
+
 	public ClientManager(String host,int port) throws UnknownHostException, InterruptedException {
 		this.host=host;
 		this.port=port;
@@ -136,12 +80,7 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		log.severe("十次重连失败");
 		
 	}
-	/**
-	 * Attempt to connect.
-	 * @param host
-	 * @param port
-	 * @return true if we should retry to connect again or false otherwise
-	 */
+
 //	判定是否需要重连(判定服务器问题还是网络问题)
 
 	private boolean attemptToConnect(final String host,final int port) {
@@ -179,11 +118,7 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		}
 		return shouldWeRetry;
 	}
-	
-	/**
-	 * The endpoint is ready to use.
-	 * @param endpoint
-	 */
+
 	@Override
 	public void endpointReady(Endpoint endpoint) {
 //		log.info("connection with server established");
@@ -210,19 +145,12 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		}
 	}
 	
-	/**
-	 * The endpoint close() method has been called and completed.
-	 * @param endpoint
-	 */
+
 	public void endpointClosed(Endpoint endpoint) {
 		log.info("connection with server terminated");
 	}
 	
-	/**
-	 * The endpoint has abruptly disconnected. It can no longer
-	 * send or receive data.
-	 * @param endpoint
-	 */
+
 	@Override
 	public void endpointDisconnectedAbruptly(Endpoint endpoint) {
 //		log.severe("connection with server terminated abruptly");
@@ -232,10 +160,6 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		shouldWeRetry=true;
 	}
 
-	/**
-	 * An invalid message was received over the endpoint.
-	 * @param endpoint
-	 */
 	@Override
 	public void endpointSentInvalidMessage(Endpoint endpoint) {
 //		log.severe("server sent an invalid message");
@@ -243,12 +167,7 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		localEmit(sessionError,endpoint);
 		endpoint.close();
 	}
-	
 
-	/**
-	 * The protocol on the endpoint is not responding.
-	 * @param endpoint
-	 */
 	@Override
 	public void endpointTimedOut(Endpoint endpoint,Protocol protocol) {
 //		log.severe("server has timed out");
@@ -258,10 +177,6 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		shouldWeRetry=true;
 	}
 
-	/**
-	 * The protocol on the endpoint has been violated.
-	 * @param endpoint
-	 */
 	@Override
 	public void protocolViolation(Endpoint endpoint,Protocol protocol) {
 //		log.severe("protocol with server has been violated: "+protocol.getProtocolName());
@@ -270,10 +185,6 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		endpoint.close();
 	}
 
-	/**
-	 * The session protocol is indicating that a session has started.
-	 * @param endpoint
-	 */
 	@Override
 	public void sessionStarted(Endpoint endpoint) {
 //		log.info("session has started with server");
@@ -291,10 +202,6 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		localEmit(sessionStarted,endpoint);
 	}
 
-	/**
-	 * The session protocol is indicating that the session has stopped. 
-	 * @param endpoint
-	 */
 	@Override
 	public void sessionStopped(Endpoint endpoint) {
 //		log.info("session has stopped with server");
@@ -302,16 +209,7 @@ public class ClientManager extends Manager implements ISessionProtocolHandler,
 		localEmit(sessionStopped,endpoint);
 		endpoint.close(); // this will stop all the protocols as well
 	}
-	
 
-	/**
-	 * The endpoint has requested a protocol to start. If the protocol
-	 * is allowed then the manager should tell the endpoint to handle it
-	 * using {@link pb.managers.endpoint.Endpoint#handleProtocol(Protocol)}
-	 * before returning true.
-	 * @param protocol
-	 * @return true if the protocol was started, false if not (not allowed to run)
-	 */
 	@Override
 	public boolean protocolRequested(Endpoint endpoint, Protocol protocol) {
 		// the only protocols in this system are this kind...

@@ -28,8 +28,8 @@ public class Client  {
 	private static String host=Utils.serverHost; // default host for the server
 	
 	private static void help(Options options){
-		String header = "PB Client for Unimelb COMP90015\n\n";
-		String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
+		String header = "Client\n\n";
+		String footer = "\nVersion 1.0";
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("pb.Client", header, options, footer, true);
 		System.exit(-1);

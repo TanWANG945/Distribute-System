@@ -31,87 +31,25 @@ import pb.managers.ServerManager;
 import pb.managers.endpoint.Endpoint;
 import pb.utils.Utils;
 
-/**
- * The FileSharingPeer is a simple example of using a PeerManager to control
- * both a server and any number of client connections to a server/peers.
- * <br/>
- * 
- * @author aaron
- *
- */
 public class FileSharingPeer {
 	private static Logger log = Logger.getLogger(FileSharingPeer.class.getName());
-	
-	/**
-	 * Events that the peers use between themselves.
-	 */
-	
-	/**
-	 * Emitted when a peer wants to get a file from another peer.
-	 * The single argument is a string that is the filename to get.
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}
-	 * </ul>
-	 */
+
 	private static final String getFile = "GET_FILE";
-	
-	/**
-	 * Emitted when a peer is sending a chunk of a file to another peer.
-	 * The single argument is a string that is a Base64 encoded byte array
-	 * that represents the chunk of the file. If the argument
-	 * is the empty string "" then it indicates there are no more
-	 * chunks to receive.
-	 * <ul>
-	 * <li>{@code args[0] instanceof String}
-	 * </ul>
-	 */
+
 	private static final String fileContents = "FILE_CONTENTS";
-	
-	/**
-	 * Emitted when a file does not exist or chunks fail to be
-	 * read. The receiving peer should then abandon waiting to
-	 * receive the rest of the chunks of the file. There are no
-	 * arguments.
-	 */
+
 	private static final String fileError = "FILE_ERROR";
-	
-	/**
-	 * port to use for this peer's server
-	 */
+
 	private static int peerPort=Utils.serverPort; // default port number for this peer's server
-	
-	
-	/**
-	 * port to use when contacting the index server
-	 */
+
 	private static int indexServerPort=Utils.indexServerPort; // default port number for index server
 
-	/**
-	 * host to use when contacting the index server
-	 */
 	private static String host=Utils.serverHost; // default host for the index server
-	
-	/**
-	 * chunk size to use (bytes) when transferring a file
-	 */
+
 	private static int chunkSize=Utils.chunkSize;
-	
-	/**
-	 * buffer for file reading
-	 */
+
 	private static byte[] buffer = new byte[chunkSize];
-	
-	/**
-	 * Read up to chunkSize bytes of a file and send to client.
-	 * If we have not reached the end of the file then set a timeout
-	 * to read some more bytes. Since this is using the timer thread
-	 * we have the danger that the transmission will block and that
-	 * this will block all the other timeouts. We could either use another
-	 * thread for each file transfer or else allow for buffering of
-	 * outgoing messages at the endpoint, to overcome this issue.
-	 * @param in the file input stream
-	 * @param endpoint the endpoint to send the file
-	 */
+
 	public static void continueTransmittingFile(InputStream in,Endpoint endpoint) {
 		try {
 			int read = in.read(buffer);
@@ -135,13 +73,7 @@ public class FileSharingPeer {
 			endpoint.emit(fileError,e.toString());
 		}
 	}
-	
-	/**
-	 * Test for the file existence and then start transmitting it. Emit
-	 * {@link #fileError} if file can't be accessed.
-	 * @param filename
-	 * @param endpoint
-	 */
+
 	public static void startTransmittingFile(String filename,Endpoint endpoint) {
 		try {
 			InputStream in = new FileInputStream(filename);
@@ -150,12 +82,7 @@ public class FileSharingPeer {
 			endpoint.emit(fileError,e.toString());
 		}
 	}
-	
-	/**
-	 * Emit a filename as an index update if possible, close when all done.
-	 * @param filenames
-	 * @param endpoint
-	 */
+
 	public static void emitIndexUpdate(String peerport,List<String> filenames,Endpoint endpoint,
 			ClientManager clientManager) {
 		if(filenames.size()==0) {
@@ -170,15 +97,7 @@ public class FileSharingPeer {
 			}, 100); // send 10 index updates per second, this shouldn't kill the bandwidth :-]
 		}
 	}
-	
-	/**
-	 * Open a client connection to the index server and send the filenames to
-	 * update the index.
-	 * @param filenames
-	 * @param peerManager
-	 * @throws InterruptedException 
-	 * @throws UnknownHostException 
-	 */
+
 	public static void uploadFileList(List<String> filenames,PeerManager peerManager,
 			String peerport) throws UnknownHostException, InterruptedException {
 		// connect to the index server and tell it the files we are sharing
@@ -204,14 +123,7 @@ public class FileSharingPeer {
 		});
         clientManager.start();
 	}
-	
-	/**
-	 * Share files by starting up a server manager and then sending updates to
-	 * the index server to say which files are being shared.
-	 * @param files list of file names to share
-	 * @throws InterruptedException 
-	 * @throws IOException 
-	 */
+
 	private static void shareFiles(String[] files) throws InterruptedException, IOException {
 		List<String> filenames=new ArrayList<String>();
 		for(String file : files) {
@@ -254,12 +166,7 @@ public class FileSharingPeer {
         System.out.println("RETURN pressed, stopping the peer");
         peerManager.shutdown();
 	}
-	
-	/**
-	 * Process a query response from the index server and download the file
-	 * @param queryResponse
-	 * @throws InterruptedException 
-	 */
+
 	private static void getFileFromPeer(PeerManager peerManager,String response) throws InterruptedException {
 		// Create a independent client manager (thread) for each download
 		// response has the format: PeerIP:PeerPort:filename
@@ -318,13 +225,7 @@ public class FileSharingPeer {
 		}	
 		
 	}
-	
-	/**
-	 * Query the index server for the keywords and download files for each of the query responses.
-	 * @param keywords list of keywords to query for and download matching files
-	 * @throws InterruptedException 
-	 * @throws UnknownHostException 
-	 */
+
 	private static void queryFiles(String[] keywords) throws UnknownHostException, InterruptedException {
 		String query = String.join(",",keywords);
 		// connect to the index server and tell it the files we are sharing
@@ -370,8 +271,8 @@ public class FileSharingPeer {
 	}
 	
 	private static void help(Options options){
-		String header = "PB Peer for Unimelb COMP90015\n\n";
-		String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
+		String header = "FileShare Peer\n\n";
+		String footer = "\nVersion 1.0";
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("pb.Peer", header, options, footer, true);
 		System.exit(-1);
